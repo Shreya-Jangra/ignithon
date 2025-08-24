@@ -1,4 +1,10 @@
-# 🔥 Firebase Setup Guide for XYLMCSCICS
+/* Example CSS for resizing the pie chart */
+/* filepath: c:\Users\KIIT\hacathon12copy\hakathon12\styles.css */
+.pie-chart {
+    width: 400px; /* Adjust width */
+    height: 400px; /* Adjust height */
+    margin: auto; /* Center the chart */
+}# 🔥 Firebase Setup Guide for XYLMCSCICS
 
 ## 🚨 **Login Issue Identified**
 

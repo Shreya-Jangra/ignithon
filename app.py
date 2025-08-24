@@ -195,136 +195,6 @@ def chat_info():
         "note": "Requires OPENAI_API_KEY environment variable"
     })
 
-@app.route('/chat', methods=['POST'])
-def chat_endpoint():
-    """
-    Process user messages about food donations using OpenAI API
-    
-    Expected JSON payload:
-    {
-        "message": "I have 20 rotis in Delhi expiring in 4 hours"
-    }
-    
-    Returns:
-    {
-        "food": "rotis",
-        "quantity": "20",
-        "expiry": "4 hours",
-        "location": "Delhi",
-        "status": "success"
-    }
-    """
-    try:
-        # Get JSON data from request
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({
-                "error": "No JSON data provided",
-                "status": "error"
-            }), 400
-        
-        user_message = data.get('message')
-        
-        if not user_message:
-            return jsonify({
-                "error": "Missing 'message' field",
-                "status": "error"
-            }), 400
-        
-        # Check if OpenAI API key is configured
-        if not openai.api_key:
-            return jsonify({
-                "error": "OpenAI API key not configured",
-                "status": "error"
-            }), 500
-        
-        # Create system prompt to force JSON output
-        system_prompt = """You are a food donation assistant. Extract food donation information from user messages and return ONLY a valid JSON object with these exact fields:
-{
-    "food": "food item name",
-    "quantity": "amount/quantity",
-    "expiry": "expiry time",
-    "location": "city/location"
-}
-
-Rules:
-- Return ONLY the JSON object, no other text
-- Ensure the JSON is valid and parseable
-- Extract the most relevant information from the message
-- If a field is not mentioned, use "unknown" as the value
-- Keep responses concise and accurate
-
-Example input: "I have 20 rotis in Delhi expiring in 4 hours"
-Example output: {"food": "rotis", "quantity": "20", "expiry": "4 hours", "location": "Delhi"}"""
-
-        try:
-            # Call OpenAI API
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message}
-                ],
-                max_tokens=150,
-                temperature=0.1  # Low temperature for consistent JSON output
-            )
-            
-            # Extract the response content
-            ai_response = response.choices[0].message.content.strip()
-            
-            # Try to parse the JSON response
-            try:
-                parsed_data = json.loads(ai_response)
-                
-                # Validate required fields
-                required_fields = ["food", "quantity", "expiry", "location"]
-                for field in required_fields:
-                    if field not in parsed_data:
-                        parsed_data[field] = "unknown"
-                
-                # Add status and original message
-                result = {
-                    "food": parsed_data.get("food", "unknown"),
-                    "quantity": parsed_data.get("quantity", "unknown"),
-                    "expiry": parsed_data.get("expiry", "unknown"),
-                    "location": parsed_data.get("location", "unknown"),
-                    "status": "success",
-                    "original_message": user_message
-                }
-                
-                return jsonify(result)
-                
-            except json.JSONDecodeError as e:
-                # If JSON parsing fails, try to extract information manually
-                print(f"JSON parsing failed: {e}")
-                print(f"AI response: {ai_response}")
-                
-                # Fallback: return a basic structure
-                return jsonify({
-                    "food": "unknown",
-                    "quantity": "unknown",
-                    "expiry": "unknown",
-                    "location": "unknown",
-                    "status": "partial_success",
-                    "original_message": user_message,
-                    "ai_response": ai_response,
-                    "note": "JSON parsing failed, using fallback"
-                })
-                
-        except Exception as openai_error:
-            print(f"OpenAI API error: {openai_error}")
-            return jsonify({
-                "error": f"OpenAI API error: {str(openai_error)}",
-                "status": "error"
-            }), 500
-        
-    except Exception as e:
-        return jsonify({
-            "error": f"An error occurred: {str(e)}",
-            "status": "error"
-        }), 500
-
 @app.route('/route', methods=['POST'])
 def get_route():
     """
@@ -546,3 +416,31 @@ if __name__ == '__main__':
         print("✅ OpenAI API key configured. Chat endpoint is ready.")
     
     app.run(host='0.0.0.0', port=port, debug=True)
+
+/* Example CSS for resizing the pie chart */
+/* filepath: c:\Users\KIIT\hacathon12copy\hakathon12\styles.css */
+.pie-chart {
+    width: 400px; /* Adjust width */
+    height: 400px; /* Adjust height */
+    margin: auto; /* Center the chart */
+}
+
+/* Example configuration for resizing the pie chart */
+/* filepath: c:\Users\KIIT\hacathon12copy\hakathon12\app.js */
+const width = 400; // Adjust width
+const height = 400; // Adjust height
+const radius = Math.min(width, height) / 2;
+
+const svg = d3.select('#pieChart')
+    .attr('width', width)
+    .attr('height', height)
+    .append('g')
+    .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+// Add pie chart rendering logic here
+
+<!-- Example HTML for the pie chart -->
+<!-- filepath: c:\Users\KIIT\hacathon12copy\hakathon12\index.html -->
+<div class="dashboard-section">
+    <canvas id="pieChart" class="pie-chart"></canvas>
+</div>
