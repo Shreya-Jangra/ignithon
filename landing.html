@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XYLMCSCICS - Food Donation Platform</title>
+    <link rel="stylesheet" href="landing-styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>XYLMCSCICS</h1>
+                <p>Connecting Communities Through Food</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <div class="welcome-content">
+                    <h2>Welcome to XYLMCSCICS</h2>
+                    <p>Join our mission to reduce food waste and help those in need. Choose your role and make a difference today.</p>
+                </div>
+            </section>
+
+            <!-- Login Section -->
+            <section class="login-section">
+                <div class="login-container">
+                    <h3>Login to Continue</h3>
+                    
+                    <form id="loginForm" class="login-form">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required placeholder="Enter your email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required placeholder="Enter your password">
+                        </div>
+                        
+                        <button type="submit" class="login-btn">Login</button>
+                    </form>
+                    
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+                    
+                    <button id="guestBtn" class="guest-btn">Continue as Guest</button>
+                    
+                    <div class="signup-link">
+                        <p>Don't have an account? <a href="#" id="signupLink">Sign up here</a></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Role Selection Section -->
+            <section id="roleSelection" class="role-section" style="display: none;">
+                <div class="role-container">
+                    <h3>Choose Your Role</h3>
+                    <p>Select how you want to contribute to our community</p>
+                    
+                    <div class="role-cards">
+                        <div class="role-card" data-role="donor">
+                            <div class="role-icon">🍽️</div>
+                            <h4>Food Donor</h4>
+                            <p>I want to donate food items to help those in need</p>
+                            <button class="role-select-btn">Continue as Donor</button>
+                        </div>
+                        
+                        <div class="role-card" data-role="ngo">
+                            <div class="role-icon">🏢</div>
+                            <h4>NGO Representative</h4>
+                            <p>I represent an organization that needs food donations</p>
+                            <button class="role-select-btn">Continue as NGO</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sign Up Modal -->
+            <div id="signupModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>Create Account</h3>
+                    
+                    <form id="signupForm" class="signup-form">
+                        <div class="form-group">
+                            <label for="signupName">Full Name</label>
+                            <input type="text" id="signupName" name="signupName" required placeholder="Enter your full name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signupEmail">Email Address</label>
+                            <input type="email" id="signupEmail" name="signupEmail" required placeholder="Enter your email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signupPassword">Password</label>
+                            <input type="password" id="signupPassword" name="signupPassword" required placeholder="Create a password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signupRole">I want to be a:</label>
+                            <select id="signupRole" name="signupRole" required>
+                                <option value="">Select your role</option>
+                                <option value="donor">Food Donor</option>
+                                <option value="ngo">NGO Representative</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="signup-submit-btn">Create Account</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Success Message Modal -->
+            <div id="successModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>Success! 🎉</h3>
+                    <p id="successMessage"></p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 XYLMCSCICS. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="landing.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XYLMCSCICS - Food Donation Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Navigation -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>🍽️ XYLMCSCICS</h1>
+                    <p>Food Donation Platform</p>
+                </div>
+                <nav class="nav">
+                    <button id="backToLanding" class="nav-btn">← Back to Landing</button>
+                    <button id="logoutBtn" class="nav-btn logout">Logout</button>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <div class="forms-container">
+                <!-- Donor Form -->
+                <section id="donorFormSection" class="form-section" style="display: none;">
+                    <h2>Donate Food</h2>
+                    <form id="donorForm" class="donation-form">
+                        <div class="form-group">
+                            <label for="foodType">Food Type *</label>
+                            <input type="text" id="foodType" name="foodType" required placeholder="e.g., Rice, Bread, Vegetables">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="quantity">Quantity *</label>
+                            <input type="text" id="quantity" name="quantity" required placeholder="e.g., 5kg, 10 packets">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expiryTime">Expiry Time (hours) *</label>
+                            <input type="number" id="expiryTime" name="expiryTime" required min="1" placeholder="24">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="donorLocation">Location *</label>
+                            <input type="text" id="donorLocation" name="donorLocation" required placeholder="e.g., Downtown, City Center">
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">Donate Food</button>
+                    </form>
+                </section>
+
+                <!-- NGO Form -->
+                <section id="ngoFormSection" class="form-section" style="display: none;">
+                    <h2>Request Food</h2>
+                    <form id="ngoForm" class="donation-form">
+                        <div class="form-group">
+                            <label for="ngoName">NGO Name *</label>
+                            <input type="text" id="ngoName" name="ngoName" required placeholder="e.g., Hope Foundation">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="foodNeeded">Food Needed *</label>
+                            <input type="text" id="foodNeeded" name="foodNeeded" required placeholder="e.g., Rice, Vegetables, Bread">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ngoLocation">Location *</label>
+                            <input type="text" id="ngoLocation" name="ngoLocation" required placeholder="e.g., Downtown, City Center">
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">Request Food</button>
+                    </form>
+                </section>
+
+                <!-- Role Selection Prompt -->
+                <section id="rolePrompt" class="form-section">
+                    <h2>Welcome to XYLMCSCICS</h2>
+                    <p>Please select your role to continue:</p>
+                    <div class="role-buttons">
+                        <button id="selectDonor" class="role-btn donor">Continue as Food Donor</button>
+                        <button id="selectNGO" class="role-btn ngo">Continue as NGO Representative</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Success Message Modal -->
+        <div id="successModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Success! 🎉</h3>
+                <p id="successMessage"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
