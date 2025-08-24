@@ -26,6 +26,31 @@ body {
     text-align: center;
     margin-bottom: 40px;
     color: white;
+    position: relative;
+}
+
+.header-nav {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.dashboard-link {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: 2px solid white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.dashboard-link:hover {
+    background: white;
+    color: #667eea;
+    transform: translateY(-2px);
 }
 
 .logo h1 {

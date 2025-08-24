@@ -27,7 +27,8 @@ def home():
         "endpoints": {
             "route": "/route - Get Google Maps directions between donor and NGO",
             "chat": "/chat - Process food donation messages with AI",
-            "health": "/health - API health check"
+            "health": "/health - API health check",
+            "match": "/match - Get matching data for donors, NGOs, and food quantities"
         }
     })
 
@@ -464,6 +465,70 @@ def route_info():
             "status": "success"
         }
     })
+
+@app.route('/match', methods=['GET'])
+def get_match_data():
+    """
+    Get matching data for donors, NGOs, and food quantities
+    Returns mock data for demonstration purposes
+    """
+    try:
+        # Mock data for demonstration
+        mock_data = {
+            "total_donors": 45,
+            "total_ngos": 23,
+            "total_food_quantity": 1250,
+            "food_units": "kg",
+            "donations_by_food_type": {
+                "Rice": 300,
+                "Wheat": 250,
+                "Vegetables": 200,
+                "Fruits": 150,
+                "Bread": 100,
+                "Milk": 150,
+                "Pulses": 100
+            },
+            "donations_by_location": {
+                "Delhi": 400,
+                "Mumbai": 300,
+                "Bangalore": 250,
+                "Chennai": 200,
+                "Kolkata": 100
+            },
+            "recent_matches": [
+                {
+                    "donor": "Restaurant ABC",
+                    "ngo": "Food Bank XYZ",
+                    "food": "Rice",
+                    "quantity": "50 kg",
+                    "status": "Matched"
+                },
+                {
+                    "donor": "Hotel DEF",
+                    "ngo": "Community Kitchen",
+                    "food": "Bread",
+                    "quantity": "25 kg",
+                    "status": "In Transit"
+                },
+                {
+                    "donor": "Catering GHI",
+                    "ngo": "Orphanage Home",
+                    "food": "Vegetables",
+                    "quantity": "30 kg",
+                    "status": "Delivered"
+                }
+            ],
+            "status": "success",
+            "last_updated": "2024-01-15T10:30:00Z"
+        }
+        
+        return jsonify(mock_data)
+        
+    except Exception as e:
+        return jsonify({
+            "error": f"An error occurred: {str(e)}",
+            "status": "error"
+        }), 500
 
 if __name__ == '__main__':
     # Get port from environment variable or use default
