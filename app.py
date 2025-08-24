@@ -416,31 +416,3 @@ if __name__ == '__main__':
         print("✅ OpenAI API key configured. Chat endpoint is ready.")
     
     app.run(host='0.0.0.0', port=port, debug=True)
-
-/* Example CSS for resizing the pie chart */
-/* filepath: c:\Users\KIIT\hacathon12copy\hakathon12\styles.css */
-.pie-chart {
-    width: 400px; /* Adjust width */
-    height: 400px; /* Adjust height */
-    margin: auto; /* Center the chart */
-}
-
-/* Example configuration for resizing the pie chart */
-/* filepath: c:\Users\KIIT\hacathon12copy\hakathon12\app.js */
-const width = 400; // Adjust width
-const height = 400; // Adjust height
-const radius = Math.min(width, height) / 2;
-
-const svg = d3.select('#pieChart')
-    .attr('width', width)
-    .attr('height', height)
-    .append('g')
-    .attr('transform', `translate(${width / 2}, ${height / 2})`);
-
-// Add pie chart rendering logic here
-
-<!-- Example HTML for the pie chart -->
-<!-- filepath: c:\Users\KIIT\hacathon12copy\hakathon12\index.html -->
-<div class="dashboard-section">
-    <canvas id="pieChart" class="pie-chart"></canvas>
-</div>
