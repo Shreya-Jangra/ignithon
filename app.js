@@ -45,7 +45,10 @@ function checkRoleFromURL() {
     const role = urlParams.get('role');
     
     if (role) {
-        selectRole(role);
+        // Store role in session storage for later use
+        sessionStorage.setItem('userRole', role);
+        // Don't immediately select role - let checkAuthState handle it
+        console.log('Role from URL:', role);
     }
 }
 
@@ -55,12 +58,65 @@ function checkAuthState() {
         if (user) {
             console.log('User is signed in:', user.email);
             // User is authenticated, show appropriate content
+            // Check if we have a role from URL or session storage
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role') || sessionStorage.getItem('userRole');
+            if (role) {
+                selectRole(role);
+            }
         } else {
             console.log('User is signed out');
-            // Redirect to landing page if not authenticated
-            window.location.href = 'landing.html';
+            // Check if user is coming from guest mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role');
+            const isGuest = urlParams.get('guest') === 'true';
+            
+            if (role && isGuest) {
+                // User is in guest mode, show appropriate form
+                console.log('Guest mode detected for role:', role);
+                selectRole(role);
+            } else if (role) {
+                // Role specified but not guest mode, redirect to landing
+                console.log('Role specified but not in guest mode, redirecting to landing');
+                window.location.href = 'landing.html';
+            } else {
+                // No role specified, redirect to landing page
+                console.log('No role specified, redirecting to landing');
+                window.location.href = 'landing.html';
+            }
         }
     });
+}
+
+// Add guest mode note to forms
+function addGuestModeNote(formSection, roleType) {
+    // Remove any existing guest mode note
+    const existingNote = formSection.querySelector('.guest-mode-note');
+    if (existingNote) {
+        existingNote.remove();
+    }
+    
+    // Create guest mode note
+    const guestNote = document.createElement('div');
+    guestNote.className = 'guest-mode-note';
+    guestNote.style.cssText = `
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 14px;
+    `;
+    guestNote.innerHTML = `
+        <strong>Guest Mode:</strong> You're using the platform without an account. 
+        Your ${roleType === 'donor' ? 'donation' : 'request'} will be saved anonymously. 
+        <a href="landing.html" style="color: #856404; text-decoration: underline;">Create an account</a> to track your activities.
+    `;
+    
+    // Insert at the top of the form section
+    formSection.insertBefore(guestNote, formSection.firstChild);
 }
 
 // Select role and show appropriate form
@@ -72,14 +128,54 @@ function selectRole(role) {
         donorFormSection.style.display = 'block';
         ngoFormSection.style.display = 'none';
         console.log('Showing donor form');
+        
+        // Add guest mode note if applicable
+        const urlParams = new URLSearchParams(window.location.search);
+        const isGuest = urlParams.get('guest') === 'true';
+        if (isGuest) {
+            addGuestModeNote(donorFormSection, 'donor');
+        }
     } else if (role === 'ngo') {
         ngoFormSection.style.display = 'block';
         donorFormSection.style.display = 'none';
         console.log('Showing NGO form');
+        
+        // Add guest mode note if applicable
+        const urlParams = new URLSearchParams(window.location.search);
+        const isGuest = urlParams.get('guest') === 'true';
+        if (isGuest) {
+            addGuestModeNote(ngoFormSection, 'ngo');
+        }
     }
     
     // Store role in session storage
     sessionStorage.setItem('userRole', role);
+    
+    // Update header based on guest mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const isGuest = urlParams.get('guest') === 'true';
+    
+    if (isGuest) {
+        // Hide logout button for guest users
+        logoutBtn.style.display = 'none';
+        // Update back button text
+        backToLandingBtn.textContent = '← Back to Landing';
+        // Add guest indicator to the header
+        const logo = document.querySelector('.logo h1');
+        if (logo) {
+            logo.innerHTML = '🍽️ XYLMCSCICS <span style="font-size: 0.6em; color: #666;">(Guest Mode)</span>';
+        }
+    } else {
+        // Show logout button for authenticated users
+        logoutBtn.style.display = 'block';
+        // Update back button text
+        backToLandingBtn.textContent = '← Back to Landing';
+        // Remove guest indicator
+        const logo = document.querySelector('.logo h1');
+        if (logo) {
+            logo.innerHTML = '🍽️ XYLMCSCICS';
+        }
+    }
 }
 
 // Handle Donor Form Submission
@@ -165,6 +261,9 @@ async function handleNGOSubmission(event) {
 
 // Go back to landing page
 function goBackToLanding() {
+    // Clear session storage
+    sessionStorage.removeItem('userRole');
+    // Redirect to landing page
     window.location.href = 'landing.html';
 }
 

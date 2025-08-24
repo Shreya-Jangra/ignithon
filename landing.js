@@ -74,12 +74,35 @@ async function handleLogin(event) {
     const email = formData.get('email');
     const password = formData.get('password');
     
+    console.log('🔐 Attempting login for:', email);
+    
+    // Check if Firebase is properly initialized
+    if (!firebase.apps.length) {
+        const errorMessage = 'Firebase is not initialized. Please check your configuration.';
+        console.error('❌', errorMessage);
+        showSuccessMessage(errorMessage);
+        return;
+    }
+    
+    // Check if Firebase Auth is available
+    if (!firebase.auth) {
+        const errorMessage = 'Firebase Authentication is not available. Please check your configuration.';
+        console.error('❌', errorMessage);
+        showSuccessMessage(errorMessage);
+        return;
+    }
+    
     try {
         // Show loading state
         setFormLoading(form, true);
         
+        console.log('📡 Attempting Firebase authentication...');
+        
         // Sign in with Firebase
-        await firebase.auth().signInWithEmailAndPassword(email, password);
+        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        console.log('✅ Login successful for user:', user.email);
         
         // Show success message
         showSuccessMessage('Login successful! Welcome back.');
@@ -90,7 +113,10 @@ async function handleLogin(event) {
         }, 1500);
         
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('❌ Login error:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        
         let errorMessage = 'Login failed. Please try again.';
         
         switch (error.code) {
@@ -105,6 +131,21 @@ async function handleLogin(event) {
                 break;
             case 'auth/too-many-requests':
                 errorMessage = 'Too many failed attempts. Please try again later.';
+                break;
+            case 'auth/network-request-failed':
+                errorMessage = 'Network error. Please check your internet connection.';
+                break;
+            case 'auth/internal-error':
+                errorMessage = 'Internal error. Please try again later.';
+                break;
+            case 'auth/invalid-api-key':
+                errorMessage = 'Invalid API key. Please check your Firebase configuration.';
+                break;
+            case 'auth/app-not-authorized':
+                errorMessage = 'App not authorized. Please check your Firebase configuration.';
+                break;
+            default:
+                errorMessage = `Login failed: ${error.message}`;
                 break;
         }
         
@@ -129,24 +170,54 @@ async function handleSignup(event) {
     const password = formData.get('signupPassword');
     const role = formData.get('signupRole');
     
+    console.log('📝 Attempting signup for:', email, 'with role:', role);
+    
+    // Check if Firebase is properly initialized
+    if (!firebase.apps.length) {
+        const errorMessage = 'Firebase is not initialized. Please check your configuration.';
+        console.error('❌', errorMessage);
+        showSuccessMessage(errorMessage);
+        return;
+    }
+    
+    // Check if Firebase Auth is available
+    if (!firebase.auth) {
+        const errorMessage = 'Firebase Authentication is not available. Please check your configuration.';
+        console.error('❌', errorMessage);
+        showSuccessMessage(errorMessage);
+        return;
+    }
+    
     try {
         // Show loading state
         setFormLoading(form, true);
+        
+        console.log('📡 Creating Firebase user account...');
         
         // Create user account
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
         
-        // Save additional user data to Firestore
-        await db.collection('users').doc(user.uid).set({
-            name: name,
-            email: email,
-            role: role,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        console.log('✅ User account created successfully:', user.uid);
         
-        // Show success message
-        showSuccessMessage(`Account created successfully! Welcome to XYLMCSCICS, ${name}!`);
+        // Check if Firestore is available
+        if (!db) {
+            console.warn('⚠️ Firestore not available, skipping user data save');
+            showSuccessMessage(`Account created successfully! Welcome to XYLMCSCICS, ${name}!`);
+        } else {
+            console.log('📡 Saving user data to Firestore...');
+            
+            // Save additional user data to Firestore
+            await db.collection('users').doc(user.uid).set({
+                name: name,
+                email: email,
+                role: role,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            console.log('✅ User data saved to Firestore successfully');
+            showSuccessMessage(`Account created successfully! Welcome to XYLMCSCICS, ${name}!`);
+        }
         
         // Close signup modal and show role selection
         setTimeout(() => {
@@ -158,7 +229,10 @@ async function handleSignup(event) {
         form.reset();
         
     } catch (error) {
-        console.error('Signup error:', error);
+        console.error('❌ Signup error:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        
         let errorMessage = 'Account creation failed. Please try again.';
         
         switch (error.code) {
@@ -170,6 +244,21 @@ async function handleSignup(event) {
                 break;
             case 'auth/invalid-email':
                 errorMessage = 'Please enter a valid email address.';
+                break;
+            case 'auth/network-request-failed':
+                errorMessage = 'Network error. Please check your internet connection.';
+                break;
+            case 'auth/internal-error':
+                errorMessage = 'Internal error. Please try again later.';
+                break;
+            case 'auth/invalid-api-key':
+                errorMessage = 'Invalid API key. Please check your Firebase configuration.';
+                break;
+            case 'auth/app-not-authorized':
+                errorMessage = 'App not authorized. Please check your Firebase configuration.';
+                break;
+            default:
+                errorMessage = `Account creation failed: ${error.message}`;
                 break;
         }
         
@@ -203,11 +292,23 @@ function handleRoleSelection(role) {
     // Store role in session storage for the forms page
     sessionStorage.setItem('userRole', role);
     
-    // Redirect to the appropriate form page
-    if (role === 'donor') {
-        window.location.href = 'index.html?role=donor';
-    } else if (role === 'ngo') {
-        window.location.href = 'index.html?role=ngo';
+    // Check if user is authenticated
+    const user = firebase.auth().currentUser;
+    
+    if (user) {
+        // User is authenticated, redirect to forms page
+        if (role === 'donor') {
+            window.location.href = 'index.html?role=donor';
+        } else if (role === 'ngo') {
+            window.location.href = 'index.html?role=ngo';
+        }
+    } else {
+        // User is not authenticated (guest mode), redirect to forms page
+        if (role === 'donor') {
+            window.location.href = 'index.html?role=donor&guest=true';
+        } else if (role === 'ngo') {
+            window.location.href = 'index.html?role=ngo&guest=true';
+        }
     }
 }
 
@@ -297,3 +398,180 @@ function addFormValidation() {
 
 // Initialize form validation
 addFormValidation();
+
+// Add Firebase status checker to the page
+function addFirebaseStatusChecker() {
+    // Create status indicator
+    const statusDiv = document.createElement('div');
+    statusDiv.id = 'firebaseStatus';
+    statusDiv.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 1000;
+        max-width: 200px;
+        text-align: center;
+    `;
+    
+    // Check Firebase status
+    function updateStatus() {
+        if (firebase.apps.length > 0) {
+            statusDiv.style.background = '#d4edda';
+            statusDiv.style.color = '#155724';
+            statusDiv.style.border = '1px solid #c3e6cb';
+            statusDiv.innerHTML = '✅ Firebase Ready';
+        } else {
+            statusDiv.style.background = '#f8d7da';
+            statusDiv.style.color = '#721c24';
+            statusDiv.style.border = '1px solid #f5c6cb';
+            statusDiv.innerHTML = '❌ Firebase Error';
+        }
+    }
+    
+    // Update status every 2 seconds
+    updateStatus();
+    setInterval(updateStatus, 2000);
+    
+    // Add click to show detailed status
+    statusDiv.addEventListener('click', function() {
+        if (window.checkFirebaseStatus) {
+            window.checkFirebaseStatus();
+        }
+    });
+    
+    // Add to page
+    document.body.appendChild(statusDiv);
+}
+
+// Add test login function
+window.testLogin = function() {
+    const testEmail = 'test@example.com';
+    const testPassword = 'testpass123';
+    
+    console.log('🧪 Testing login with:', testEmail);
+    
+    // Check Firebase status first
+    if (!firebase.apps.length) {
+        console.error('❌ Firebase not initialized');
+        alert('Firebase not initialized. Check your configuration.');
+        return;
+    }
+    
+    // Try to sign in
+    firebase.auth().signInWithEmailAndPassword(testEmail, testPassword)
+        .then((userCredential) => {
+            console.log('✅ Test login successful:', userCredential.user.email);
+            alert('Test login successful! Firebase is working correctly.');
+        })
+        .catch((error) => {
+            console.log('❌ Test login failed (expected):', error.code);
+            if (error.code === 'auth/user-not-found') {
+                alert('Test login failed as expected (user not found). Firebase is working correctly.');
+            } else {
+                alert(`Test login failed: ${error.message}`);
+            }
+        });
+};
+
+// Add test signup function
+window.testSignup = function() {
+    const testEmail = 'test' + Date.now() + '@example.com';
+    const testPassword = 'testpass123';
+    const testName = 'Test User';
+    const testRole = 'donor';
+    
+    console.log('🧪 Testing signup with:', testEmail);
+    
+    // Check Firebase status first
+    if (!firebase.apps.length) {
+        console.error('❌ Firebase not initialized');
+        alert('Firebase not initialized. Check your configuration.');
+        return;
+    }
+    
+    // Try to create account
+    firebase.auth().createUserWithEmailAndPassword(testEmail, testPassword)
+        .then((userCredential) => {
+            console.log('✅ Test signup successful:', userCredential.user.uid);
+            
+            // Try to save to Firestore if available
+            if (window.db) {
+                return window.db.collection('users').doc(userCredential.user.uid).set({
+                    name: testName,
+                    email: testEmail,
+                    role: testRole,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+        })
+        .then(() => {
+            if (window.db) {
+                console.log('✅ Test user data saved to Firestore');
+                alert('Test signup and Firestore save successful! Firebase is working correctly.');
+            } else {
+                alert('Test signup successful! Firebase is working correctly.');
+            }
+            
+            // Clean up test user
+            return firebase.auth().currentUser.delete();
+        })
+        .then(() => {
+            console.log('✅ Test user cleaned up');
+        })
+        .catch((error) => {
+            console.error('❌ Test signup failed:', error);
+            alert(`Test signup failed: ${error.message}`);
+        });
+};
+
+// Initialize Firebase status checker when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Add status checker after a short delay
+    setTimeout(addFirebaseStatusChecker, 1000);
+    
+    // Add test buttons to the page for debugging
+    const testDiv = document.createElement('div');
+    testDiv.style.cssText = `
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        z-index: 1000;
+    `;
+    
+    const testLoginBtn = document.createElement('button');
+    testLoginBtn.textContent = '🧪 Test Login';
+    testLoginBtn.onclick = window.testLogin;
+    testLoginBtn.style.cssText = `
+        padding: 5px 10px;
+        font-size: 10px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    `;
+    
+    const testSignupBtn = document.createElement('button');
+    testSignupBtn.textContent = '🧪 Test Signup';
+    testSignupBtn.onclick = window.testSignup;
+    testSignupBtn.style.cssText = `
+        padding: 5px 10px;
+        font-size: 10px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    `;
+    
+    testDiv.appendChild(testLoginBtn);
+    testDiv.appendChild(testSignupBtn);
+    document.body.appendChild(testDiv);
+});

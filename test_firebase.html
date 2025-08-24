@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Test - XYLMCSCICS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        
+        .test-button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover { background: #0056b3; }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Firebase Configuration Test</h1>
+    
+    <div class="test-section">
+        <h2>Firebase Status Check</h2>
+        <div id="firebaseStatus" class="status info">Checking Firebase status...</div>
+        <button class="test-button" onclick="checkFirebaseStatus()">Check Status</button>
+        <button class="test-button" onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Authentication Test</h2>
+        <button class="test-button" onclick="testAuth()">Test Authentication</button>
+        <button class="test-button" onclick="testSignup()">Test Signup</button>
+        <button class="test-button" onclick="testLogin()">Test Login</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Firestore Test</h2>
+        <button class="test-button" onclick="testFirestore()">Test Firestore Connection</button>
+        <button class="test-button" onclick="testWrite()">Test Write Operation</button>
+        <button class="test-button" onclick="testRead()">Test Read Operation</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Console Log</h2>
+        <div id="logOutput" class="log">Waiting for tests...</div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        let logOutput = '';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            logOutput += logEntry;
+            document.getElementById('logOutput').textContent = logOutput;
+            
+            // Also log to console
+            if (type === 'error') {
+                console.error(message);
+            } else if (type === 'warning') {
+                console.warn(message);
+            } else {
+                console.log(message);
+            }
+        }
+        
+        function clearLog() {
+            logOutput = '';
+            document.getElementById('logOutput').textContent = logOutput;
+        }
+        
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('firebaseStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        function checkFirebaseStatus() {
+            log('🔍 Checking Firebase status...');
+            
+            try {
+                if (typeof firebase === 'undefined') {
+                    updateStatus('❌ Firebase SDK not loaded', 'error');
+                    log('❌ Firebase SDK not loaded', 'error');
+                    return;
+                }
+                
+                if (firebase.apps.length === 0) {
+                    updateStatus('❌ Firebase not initialized', 'error');
+                    log('❌ Firebase not initialized', 'error');
+                    return;
+                }
+                
+                log('✅ Firebase SDK loaded successfully');
+                log('✅ Firebase app initialized');
+                
+                // Check Auth
+                if (firebase.auth) {
+                    log('✅ Firebase Auth available');
+                } else {
+                    log('❌ Firebase Auth not available', 'error');
+                }
+                
+                // Check Firestore
+                if (firebase.firestore) {
+                    log('✅ Firebase Firestore available');
+                } else {
+                    log('❌ Firebase Firestore not available', 'error');
+                }
+                
+                // Check if our config variables are available
+                if (window.db) {
+                    log('✅ Firestore instance available');
+                } else {
+                    log('❌ Firestore instance not available', 'error');
+                }
+                
+                if (window.auth) {
+                    log('✅ Auth instance available');
+                } else {
+                    log('❌ Auth instance not available', 'error');
+                }
+                
+                updateStatus('✅ Firebase Ready', 'success');
+                
+            } catch (error) {
+                updateStatus('❌ Error checking Firebase', 'error');
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function testAuth() {
+            log('🧪 Testing Firebase Authentication...');
+            
+            try {
+                if (!firebase.auth) {
+                    log('❌ Firebase Auth not available', 'error');
+                    return;
+                }
+                
+                log('✅ Firebase Auth is available');
+                log('✅ Auth test completed successfully');
+                
+            } catch (error) {
+                log(`❌ Auth test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testSignup() {
+            log('🧪 Testing Firebase Signup...');
+            
+            try {
+                if (!firebase.auth) {
+                    log('❌ Firebase Auth not available', 'error');
+                    return;
+                }
+                
+                const testEmail = 'test' + Date.now() + '@example.com';
+                const testPassword = 'testpass123';
+                
+                log(`📝 Attempting signup with: ${testEmail}`);
+                
+                firebase.auth().createUserWithEmailAndPassword(testEmail, testPassword)
+                    .then((userCredential) => {
+                        log(`✅ Test signup successful: ${userCredential.user.uid}`);
+                        
+                        // Clean up test user
+                        return userCredential.user.delete();
+                    })
+                    .then(() => {
+                        log('✅ Test user cleaned up');
+                    })
+                    .catch((error) => {
+                        if (error.code === 'auth/email-already-in-use') {
+                            log('⚠️ Test user already exists (expected)', 'warning');
+                        } else {
+                            log(`❌ Test signup failed: ${error.message}`, 'error');
+                        }
+                    });
+                
+            } catch (error) {
+                log(`❌ Signup test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testLogin() {
+            log('🧪 Testing Firebase Login...');
+            
+            try {
+                if (!firebase.auth) {
+                    log('❌ Firebase Auth not available', 'error');
+                    return;
+                }
+                
+                const testEmail = 'nonexistent@example.com';
+                const testPassword = 'wrongpassword';
+                
+                log(`🔐 Attempting login with: ${testEmail}`);
+                
+                firebase.auth().signInWithEmailAndPassword(testEmail, testPassword)
+                    .then((userCredential) => {
+                        log(`✅ Test login successful: ${userCredential.user.email}`);
+                    })
+                    .catch((error) => {
+                        if (error.code === 'auth/user-not-found') {
+                            log('✅ Test login failed as expected (user not found)');
+                        } else {
+                            log(`❌ Test login failed: ${error.message}`, 'error');
+                        }
+                    });
+                
+            } catch (error) {
+                log(`❌ Login test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testFirestore() {
+            log('🧪 Testing Firestore connection...');
+            
+            try {
+                if (!firebase.firestore) {
+                    log('❌ Firebase Firestore not available', 'error');
+                    return;
+                }
+                
+                if (!window.db) {
+                    log('❌ Firestore instance not available', 'error');
+                    return;
+                }
+                
+                log('✅ Firestore is available');
+                log('✅ Firestore connection test completed');
+                
+            } catch (error) {
+                log(`❌ Firestore test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testWrite() {
+            log('🧪 Testing Firestore write operation...');
+            
+            try {
+                if (!window.db) {
+                    log('❌ Firestore instance not available', 'error');
+                    return;
+                }
+                
+                const testData = {
+                    test: true,
+                    timestamp: new Date().toISOString(),
+                    message: 'Test write operation'
+                };
+                
+                log('📝 Attempting to write test data...');
+                
+                window.db.collection('test').doc('write-test').set(testData)
+                    .then(() => {
+                        log('✅ Test write successful');
+                    })
+                    .catch((error) => {
+                        log(`❌ Test write failed: ${error.message}`, 'error');
+                    });
+                
+            } catch (error) {
+                log(`❌ Write test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testRead() {
+            log('🧪 Testing Firestore read operation...');
+            
+            try {
+                if (!window.db) {
+                    log('❌ Firestore instance not available', 'error');
+                    return;
+                }
+                
+                log('📖 Attempting to read test data...');
+                
+                window.db.collection('test').doc('write-test').get()
+                    .then((doc) => {
+                        if (doc.exists) {
+                            log('✅ Test read successful');
+                            log(`📄 Data: ${JSON.stringify(doc.data(), null, 2)}`);
+                        } else {
+                            log('⚠️ Test document does not exist (run write test first)', 'warning');
+                        }
+                    })
+                    .catch((error) => {
+                        log(`❌ Test read failed: ${error.message}`, 'error');
+                    });
+                
+            } catch (error) {
+                log(`❌ Read test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-check status when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Page loaded, starting Firebase tests...');
+            setTimeout(checkFirebaseStatus, 1000);
+        });
+    </script>
+</body>
+</html>

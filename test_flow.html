@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow Test - XYLMCSCICS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 XYLMCSCICS Flow Test</h1>
+    
+    <div class="test-section">
+        <h2>Test the User Flow</h2>
+        <p>This page helps you test the different user flows in the XYLMCSCICS platform.</p>
+        
+        <h3>1. Test Guest Mode Flow</h3>
+        <p>Test what happens when users click "Continue as Guest" and select a role:</p>
+        <button class="test-button" onclick="testGuestFlow('donor')">Test Guest Donor Flow</button>
+        <button class="test-button" onclick="testGuestFlow('ngo')">Test Guest NGO Flow</button>
+        
+        <h3>2. Test Authenticated User Flow</h3>
+        <p>Test what happens when authenticated users select a role:</p>
+        <button class="test-button" onclick="testAuthFlow('donor')">Test Auth Donor Flow</button>
+        <button class="test-button" onclick="testAuthFlow('ngo')">Test Auth NGO Flow</button>
+        
+        <h3>3. Test Direct URL Access</h3>
+        <p>Test accessing forms directly with URL parameters:</p>
+        <button class="test-button" onclick="testDirectAccess('donor')">Test Direct Donor Access</button>
+        <button class="test-button" onclick="testDirectAccess('ngo')">Test Direct NGO Access</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        function showResult(message, type = 'success') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = type;
+            resultDiv.textContent = message;
+            resultsDiv.appendChild(resultDiv);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                resultDiv.remove();
+            }, 5000);
+        }
+        
+        function testGuestFlow(role) {
+            const url = `index.html?role=${role}&guest=true`;
+            showResult(`Testing guest ${role} flow... Redirecting to: ${url}`, 'success');
+            
+            // Simulate the redirect
+            setTimeout(() => {
+                window.open(url, '_blank');
+            }, 1000);
+        }
+        
+        function testAuthFlow(role) {
+            const url = `index.html?role=${role}`;
+            showResult(`Testing authenticated ${role} flow... Redirecting to: ${url}`, 'success');
+            
+            // Simulate the redirect
+            setTimeout(() => {
+                window.open(url, '_blank');
+            }, 1000);
+        }
+        
+        function testDirectAccess(role) {
+            const url = `index.html?role=${role}`;
+            showResult(`Testing direct ${role} access... Redirecting to: ${url}`, 'success');
+            
+            // Simulate the redirect
+            setTimeout(() => {
+                window.open(url, '_blank');
+            }, 1000);
+        }
+        
+        // Show current page info
+        showResult('Flow test page loaded. Use the buttons above to test different flows.', 'success');
+    </script>
+</body>
+</html>
